@@ -1,0 +1,32 @@
+name: Sincronizador de Horarios
+
+on:
+  workflow_dispatch: # Permite que cron-job.org lo active desde afuera
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Permiso clave para que el bot pueda subir el archivo al repo
+
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar dependencias
+        run: pip install requests
+
+      - name: Ejecutar script extractor
+        run: python extractor.py
+
+      - name: Auto-commit y Push
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action Bot"
+          git add data/horarios.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Bot: Horarios actualizados" && git push)
