@@ -1,24 +1,42 @@
 import os
 import json
 import requests
+import base64
+
+def extraer_access_token(cookie_str):
+    try:
+        parts = [p.strip() for p in cookie_str.split(';') if 'sb-auth-auth-token' in p]
+        parts.sort(key=lambda x: x.split('=')[0])
+        raw_b64 = "".join([p.split('=', 1)[1] for p in parts]).replace('base64-', '')
+        padding = '=' * (-len(raw_b64) % 4)
+        decoded = base64.b64decode(raw_b64 + padding).decode('utf-8')
+        data = json.loads(decoded)
+        return data.get("access_token")
+    except Exception:
+        return None
 
 def scrapear_horarios():
     print("Iniciando extracción de datos para POLE...")
     
-    token = os.environ.get("SUPABASE_TOKEN")
-    if not token:
-        print("❌ Error: Falta la variable SUPABASE_TOKEN.")
+    cookie = os.environ.get("SUPABASE_COOKIE")
+    if not cookie:
+        print("❌ Error: No se encontró la variable SUPABASE_COOKIE.")
         return
 
-    # Endpoint de notificaciones / eventos
+    access_token = extraer_access_token(cookie)
+    
     url_data = "https://theracingline.app/api/notifications/upcoming"
     
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        "Accept": "application/json",
-        "Authorization": f"Bearer {token}"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+        "Accept": "application/json, text/plain, */*",
+        "Referer": "https://theracingline.app/",
+        "Cookie": cookie
     }
-    
+
+    if access_token:
+        headers["Authorization"] = f"Bearer {access_token}"
+
     try:
         response = requests.get(url_data, headers=headers, timeout=30)
         
