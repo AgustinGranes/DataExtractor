@@ -5,19 +5,18 @@ import requests
 def scrapear_horarios():
     print("Iniciando extracción de datos para POLE...")
     
-    # Cookie de sesión limpia
-    session_cookie = os.environ.get("SUPABASE_COOKIE")
-    
-    if not session_cookie:
-        print("❌ Error: No se encontró la variable SUPABASE_COOKIE en GitHub Secrets.")
+    token = os.environ.get("SUPABASE_TOKEN")
+    if not token:
+        print("❌ Error: Falta la variable SUPABASE_TOKEN.")
         return
 
+    # Endpoint de notificaciones / eventos
     url_data = "https://theracingline.app/api/notifications/upcoming"
     
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
-        "Accept": "application/json, text/plain, */*",
-        "Cookie": session_cookie
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Accept": "application/json",
+        "Authorization": f"Bearer {token}"
     }
     
     try:
@@ -51,7 +50,7 @@ def scrapear_horarios():
             print("✔ Sin cambios en los horarios.")
             
     except Exception as e:
-        print(f"❌ Error en la ejecución: {e}")
+        print(f"❌ Error durante la ejecución: {e}")
 
 if __name__ == "__main__":
     scrapear_horarios()
