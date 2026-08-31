@@ -22,6 +22,8 @@ jobs:
         run: pip install requests
 
       - name: Ejecutar script extractor
+        env:
+          SUPABASE_REFRESH_TOKEN: ${{ secrets.SUPABASE_REFRESH_TOKEN }}
         run: python extractor.py
 
       - name: Auto-commit y Push
