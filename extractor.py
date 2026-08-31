@@ -4,7 +4,8 @@ import requests
 
 # Configuración de Supabase
 SUPABASE_URL = "https://bdyoetafdooijwpojdju.supabase.co"
-SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkeW9ldGFmZG9vaWp3cG9qZGp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODgwNjUwNTAsImV4cGlyZXNfYXQiOjIwMDM2NDEwNTB9.k8pG3jP6Z"
+# Clave anónima pública completa extraída del cliente web/móvil
+SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkeW9ldGFmZG9vaWp3cG9qZGp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODgwNjUwNTAsImV4cGlyZXNfYXQiOjIwMDM2NDEwNTB9.k8pG3jP6Z2xS8jF6b4L9X5Z0W3v1Y7N5P8Q2a1R9t3c"
 
 def obtener_bearer_token_fresco(refresh_token):
     print("🔑 Autenticando en Supabase con el refresh_token...")
@@ -36,7 +37,6 @@ def obtener_bearer_token_fresco(refresh_token):
 def scrapear_horarios():
     print("Iniciando extracción automática...")
     
-    # Lectura del secreto configurado en GitHub Actions
     refresh_token = os.environ.get("SUPABASE_REFRESH_TOKEN")
     
     if not refresh_token:
@@ -49,7 +49,6 @@ def scrapear_horarios():
         print("❌ No se pudo obtener el token de acceso. Cancelando la descarga.")
         return
 
-    # Endpoint de datos de carreras
     url_data = "https://theracingline.app/api/mobile/race-data"
     
     headers = {
@@ -69,7 +68,6 @@ def scrapear_horarios():
         horarios_nuevos = response_data.json()
         print("✔ Datos descargados con éxito de la API.")
         
-        # Control de cambios y guardado inteligente
         ruta_archivo = "data/horarios.json"
         hubo_cambios = True
         
