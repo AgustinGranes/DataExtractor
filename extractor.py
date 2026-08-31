@@ -2,16 +2,29 @@ import os
 import json
 import requests
 
-def obtener_calendario_directo():
-    print("Obteniendo calendario general desde la API...")
+def scrapear_horarios():
+    print("Iniciando extracción de datos para POLE...")
     
-    # Endpoint directo público de la base de datos de The Racing Line
-    url = "https://theracingline.app/api/events/upcoming"
+    token = os.environ.get("SUPABASE_TOKEN")
+    cookie = os.environ.get("SUPABASE_COOKIE")
+    
+    if not token and not cookie:
+        print("❌ Error: No se encontraron credenciales de autenticación.")
+        return
+
+    url = "https://theracingline.app/api/notifications/upcoming"
     
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        "Accept": "application/json"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+        "Accept": "application/json, text/plain, */*",
+        "Referer": "https://theracingline.app/home",
+        "Origin": "https://theracingline.app"
     }
+
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    if cookie:
+        headers["Cookie"] = cookie
 
     try:
         response = requests.get(url, headers=headers, timeout=30)
@@ -22,9 +35,9 @@ def obtener_calendario_directo():
             
         data = response.json()
         
-        # Validar si devolvió la lista real de eventos
-        if not data or (isinstance(data, dict) and data.get("poisoned")):
-            print("⚠️ La API sigue devolviendo un payload restringido.")
+        # Validar si devuelve el payload envenenado por falta de autenticación
+        if isinstance(data, dict) and data.get("poisoned") is True and not data.get("sessions"):
+            print("❌ La API devolvió un estado de sesión no autenticado (poisoned: true). Verifica la validez del SUPABASE_TOKEN.")
             return
 
         print("✔ Horarios obtenidos correctamente.")
@@ -35,10 +48,10 @@ def obtener_calendario_directo():
         with open(ruta, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
             
-        print(f"✔ Datos actualizados en '{ruta}'.")
+        print(f"✔ Cambios guardados en '{ruta}'.")
 
     except Exception as e:
-        print(f"❌ Error en la petición: {e}")
+        print(f"❌ Error durante la ejecución: {e}")
 
 if __name__ == "__main__":
-    obtener_calendario_directo()
+    scrapear_horarios()
