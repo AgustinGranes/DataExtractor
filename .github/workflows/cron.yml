@@ -23,7 +23,7 @@ jobs:
 
       - name: Ejecutar script extractor
         env:
-          SUPABASE_TOKEN: ${{ secrets.SUPABASE_TOKEN }}
+          SUPABASE_COOKIE: ${{ secrets.SUPABASE_COOKIE }}
         run: python extractor.py
 
       - name: Auto-commit y Push
